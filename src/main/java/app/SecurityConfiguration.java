@@ -8,15 +8,25 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache;
+import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
 @Configuration
@@ -34,6 +44,9 @@ public class SecurityConfiguration {
   @Autowired
   private JwtAuthenticationConverter converter;
 
+  @Autowired
+  private SecurityContextRepository contextRepository;
+
 //  @Autowired
 //  private ServerBearerTokenAuthenticationConverter converter;
 
@@ -49,24 +62,25 @@ public class SecurityConfiguration {
             .disable()
           .logout()
             .disable()
-//          .authenticationManager(manager)
+          .requestCache().requestCache(NoOpServerRequestCache.getInstance())
+        .and()
           .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
           .authorizeExchange()
           .pathMatchers("/hello-get")
             .permitAll()
           .anyExchange()
             .authenticated()
-//        .and()
-//          .oauth2Client()
-//          .authenticationConverter(converter)
-//          .authenticationManager(manager)
         .and()
-//          .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+          .oauth2Client()
+            .clientRegistrationRepository(clientRegistrationRepository)
+        .and()
           .oauth2Login()
             .clientRegistrationRepository(clientRegistrationRepository)
-            .authenticationConverter(converter)
-            .authenticationManager(manager)
-            .authorizedClientService()
+        .and()
+          .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+
+//            .authenticationConverter(converter)
+//            .authenticationManager(manager)
 //        .and()
 //          .oauth2ResourceServer()
 //            .jwt()
@@ -96,13 +110,21 @@ public class SecurityConfiguration {
 
     AuthenticationWebFilter authenticationWebFilter = new AuthenticationWebFilter(manager);
     authenticationWebFilter
-        .setServerAuthenticationConverter(new JwtAuthenticationConverter());
-//    NegatedServerWebExchangeMatcher negateWhiteList = new NegatedServerWebExchangeMatcher(
-//        ServerWebExchangeMatchers.pathMatchers(AUTH_WHITELIST));
-//    authenticationWebFilter.setRequiresAuthenticationMatcher(negateWhiteList);
+            .setServerAuthenticationConverter(new JwtAuthenticationConverter());
+    NegatedServerWebExchangeMatcher negateWhiteList = new NegatedServerWebExchangeMatcher(
+            ServerWebExchangeMatchers.pathMatchers("/login/oauth2/code/{registrationId}"));
+    authenticationWebFilter.setRequiresAuthenticationMatcher(negateWhiteList);
+
+    authenticationWebFilter.setAuthenticationSuccessHandler(new ServerAuthenticationSuccessHandler() {
+      @Override
+      public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
+
+        return Mono.empty();
+      }
+    });
     authenticationWebFilter
-        .setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
-//    authenticationWebFilter.setAuthenticationFailureHandler();
+            .setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
+    authenticationWebFilter.setAuthenticationFailureHandler((webFilterExchange, exception) -> Mono.error(exception));
     return authenticationWebFilter;
   }
 
