@@ -52,7 +52,7 @@ public class Oauth2LoginAuthenticationManager implements ReactiveAuthenticationM
 //				return Mono.empty();
       }
 
-      return this.authorizationCodeManager.authenticate(token)
+      return authorizationCodeManager.authenticate(token)
           .onErrorMap(OAuth2AuthorizationException.class,
               e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
           .cast(OAuth2AuthorizationCodeAuthenticationToken.class)
@@ -68,7 +68,7 @@ public class Oauth2LoginAuthenticationManager implements ReactiveAuthenticationM
     OAuth2UserRequest userRequest = new OAuth2UserRequest(authentication.getClientRegistration(),
         accessToken, additionalParameters);
 
-    return this.userService.loadUser(userRequest)
+    return userService.loadUser(userRequest)
         .map(oauth2User -> {
           Collection<? extends GrantedAuthority> mappedAuthorities =
               this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());

@@ -27,7 +27,12 @@ public class Oauth2LoginWebFilter extends AuthenticationWebFilter {
         clientRegistrationRepository));
     setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 
-    setAuthenticationSuccessHandler((webFilterExchange, authentication) -> Mono.empty());
+    setAuthenticationSuccessHandler((webFilterExchange, authentication) -> {
+
+      // add access token to header
+      webFilterExchange.getExchange().getResponse().getHeaders().add("access_token", "test_access_token");
+      return Mono.empty().then();
+    });
     setAuthenticationFailureHandler((webFilterExchange, exception) -> Mono.error(exception));
   }
 
