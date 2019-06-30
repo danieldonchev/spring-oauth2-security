@@ -1,7 +1,9 @@
 package app;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,11 +58,14 @@ public class OauthProviderConfiguration {
 
     if (client.equals("google")) {
       return CommonOAuth2Provider.GOOGLE.getBuilder(client)
-          .clientId(clientId).clientSecret(clientSecret).build();
+          .clientId(clientId).clientSecret(clientSecret)
+          .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth?access_type=offline")
+          .build();
     }
     if (client.equals("facebook")) {
       return CommonOAuth2Provider.FACEBOOK.getBuilder(client)
-          .clientId(clientId).clientSecret(clientSecret).build();
+          .clientId(clientId).clientSecret(clientSecret)
+          .build();
     }
     return null;
   }

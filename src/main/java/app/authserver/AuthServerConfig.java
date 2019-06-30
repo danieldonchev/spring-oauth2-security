@@ -41,7 +41,7 @@
 //
 //import org.springframework.context.annotation.Configuration;
 //
-//import org.springframework.security.authentication.AuthenticationManager;
+//import org.springframework.security.authentication.Oauth2LoginAuthenticationManager;
 //
 //import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 //
@@ -73,7 +73,7 @@
 //  private UserApprovalHandler userApprovalHandler;
 //
 //  @Autowired
-//  private AuthenticationManager authenticationManager;
+//  private Oauth2LoginAuthenticationManager authenticationManager;
 //
 //  @Override
 //  public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
