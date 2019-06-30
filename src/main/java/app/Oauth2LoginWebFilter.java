@@ -1,5 +1,10 @@
 package app;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -30,8 +35,23 @@ public class Oauth2LoginWebFilter extends AuthenticationWebFilter {
     setAuthenticationSuccessHandler((webFilterExchange, authentication) -> {
 
       // add access token to header
-      webFilterExchange.getExchange().getResponse().getHeaders().add("access_token", "test_access_token");
-      return Mono.empty().then();
+
+      webFilterExchange.getExchange().getResponse().getHeaders()
+          .add("access_token", "test_access_token");
+
+      ObjectMapper om = new ObjectMapper();
+      String result;
+      try {
+        result = om.writeValueAsString(authentication);
+      } catch (JsonProcessingException e) {
+        result = "Something went wrong in authentication";
+        webFilterExchange.getExchange().getResponse()
+            .setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      byte[] bytes = result.getBytes(StandardCharsets.UTF_8);
+      DataBuffer buffer = webFilterExchange.getExchange().getResponse().bufferFactory().wrap(bytes);
+
+      return webFilterExchange.getExchange().getResponse().writeWith(Mono.just(buffer));
     });
     setAuthenticationFailureHandler((webFilterExchange, exception) -> Mono.error(exception));
   }
