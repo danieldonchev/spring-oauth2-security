@@ -76,11 +76,10 @@ public class SecurityConfiguration {
 //          .authenticationManager(manager)
 //        .and()
         .addFilterAt(new Oauth2RequestRedirectWebFilter(clientRegistrationRepository), SecurityWebFiltersOrder.HTTP_BASIC)
-//        .addFilterAt(new OAuth2AuthenticationWebFilter(oauth2LoginAuthenticationManager,
-//            clientRegistrationRepository), SecurityWebFiltersOrder.AUTHENTICATION)
+        .addFilterAt(new OAuth2AuthenticationWebFilter(oauth2LoginAuthenticationManager,
+            clientRegistrationRepository), SecurityWebFiltersOrder.AUTHENTICATION)
         .oauth2Login()
         .clientRegistrationRepository(clientRegistrationRepository)
-
         .authorizedClientRepository(clientRepository())
 //            .authenticationConverter(converter)
 //            .authenticationManager(manager)
