@@ -7,8 +7,12 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 @Configuration
 public class CustomConfigurer implements WebFluxConfigurer {
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-      registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*");
-    }
+  private final long MAX_AGE_SECS = 3600;
+
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/**").allowedOrigins("*")
+        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS").allowedHeaders("*")
+        .allowCredentials(true).maxAge(MAX_AGE_SECS);
   }
+}

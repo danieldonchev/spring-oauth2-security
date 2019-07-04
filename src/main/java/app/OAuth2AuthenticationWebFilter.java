@@ -20,9 +20,9 @@ import org.springframework.security.web.server.util.matcher.PathPatternParserSer
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import reactor.core.publisher.Mono;
 
-public class Oauth2LoginWebFilter extends AuthenticationWebFilter {
+public class OAuth2AuthenticationWebFilter extends AuthenticationWebFilter {
 
-  public Oauth2LoginWebFilter(
+  public OAuth2AuthenticationWebFilter(
       ReactiveAuthenticationManager authenticationManager,
       ReactiveClientRegistrationRepository clientRegistrationRepository) {
     super(authenticationManager);

@@ -1,9 +1,14 @@
 package app;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -16,6 +21,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebSession;
+import org.springframework.web.server.session.WebSessionManager;
 import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
@@ -34,8 +41,8 @@ public class SecurityConfiguration {
 //  @Autowired
 //  private JwtAuthenticationConverter converter;
 
-//  @Autowired
-//  private ServerBearerTokenAuthenticationConverter converter;
+  @Autowired
+  private ResourceAuthenticationConverter resourceAuthenticationConverter;
 
   @Bean
   public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -49,6 +56,8 @@ public class SecurityConfiguration {
         .disable()
         .logout()
         .disable()
+        .authenticationManager(oauth2LoginAuthenticationManager)
+        .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
         .exceptionHandling()
         .authenticationEntryPoint(new RedirectAuthEntryPoint("/login"))
         .accessDeniedHandler(new HttpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST))
@@ -62,13 +71,13 @@ public class SecurityConfiguration {
         .anyExchange()
         .authenticated()
         .and()
-        .oauth2Client()
+//        .oauth2Client()
 //          .authenticationConverter(converter)
 //          .authenticationManager(manager)
-        .and()
+//        .and()
         .addFilterAt(new Oauth2RequestRedirectWebFilter(clientRegistrationRepository), SecurityWebFiltersOrder.HTTP_BASIC)
-        .addFilterAt(new Oauth2LoginWebFilter(oauth2LoginAuthenticationManager,
-            clientRegistrationRepository), SecurityWebFiltersOrder.AUTHENTICATION)
+//        .addFilterAt(new OAuth2AuthenticationWebFilter(oauth2LoginAuthenticationManager,
+//            clientRegistrationRepository), SecurityWebFiltersOrder.AUTHENTICATION)
         .oauth2Login()
         .clientRegistrationRepository(clientRegistrationRepository)
 
@@ -77,9 +86,10 @@ public class SecurityConfiguration {
 //            .authenticationManager(manager)
 //        .and()
 //          .oauth2ResourceServer()
-////          .bearerTokenConverter(converter)
-//            .jwt()
-//            .authenticationManager(manager)
+//          .bearerTokenConverter(resourceAuthenticationConverter)
+//          .jwt()
+//            .authenticationManager(oauth2LoginAuthenticationManager)
+// .authenticationManager(oauth2LoginAuthenticationManager)
     ;
     return http.build();
   }
