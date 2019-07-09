@@ -1,0 +1,44 @@
+#Build and execution folders
+build/
+bin/
+tmp/
+out/
+classes/
+
+#Java
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+#Gradle
+.gradle
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+#Idea files
+*.iml
+*.ipr
+*.iws
+.idea
+
+#Eclipse files
+.settings/
+.loadpath
+.project
+*.launch
+.classpath
+
+# Logs and databases
+*.log
+
+#OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
