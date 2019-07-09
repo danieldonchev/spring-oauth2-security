@@ -2,6 +2,7 @@ package app;
 
 import java.util.Collection;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,13 +25,14 @@ import reactor.core.publisher.Mono;
 public class Oauth2LoginAuthenticationManager implements ReactiveAuthenticationManager {
 
   private final ReactiveAuthenticationManager authorizationCodeManager;
-
   private final ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
-
+  private final AuthRepository authRepository;
   private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
-  public Oauth2LoginAuthenticationManager() {
+  @Autowired
+  public Oauth2LoginAuthenticationManager(AuthRepository authRepository) {
 
+    this.authRepository = authRepository;
     WebClientReactiveAuthorizationCodeTokenResponseClient client = new WebClientReactiveAuthorizationCodeTokenResponseClient();
     this.authorizationCodeManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(
         client);
@@ -41,16 +43,6 @@ public class Oauth2LoginAuthenticationManager implements ReactiveAuthenticationM
   public Mono<Authentication> authenticate(Authentication authentication) {
     return Mono.defer(() -> {
       OAuth2AuthorizationCodeAuthenticationToken token = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
-
-      // Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
-      // scope REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-      if (token.getAuthorizationExchange()
-          .getAuthorizationRequest().getScopes().contains("openid")) {
-        // This is an OpenID Connect Authentication Request so return null
-        // and let OidcAuthorizationCodeReactiveAuthenticationManager handle it instead once one is created
-        // FIXME: Once we create OidcAuthorizationCodeReactiveAuthenticationManager uncomment below
-//				return Mono.empty();
-      }
 
       return authorizationCodeManager.authenticate(token)
           .onErrorMap(OAuth2AuthorizationException.class,
@@ -80,6 +72,11 @@ public class Oauth2LoginAuthenticationManager implements ReactiveAuthenticationM
               mappedAuthorities,
               accessToken,
               authentication.getRefreshToken());
+
+          User user = new User("test-id", "test-name", "test-email");
+
+//          authRepository.save(user).block();
+
           return authenticationResult;
         });
   }

@@ -1,14 +1,9 @@
 package app;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.lang.NonNull;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -21,8 +16,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebSession;
-import org.springframework.web.server.session.WebSessionManager;
 import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
@@ -37,12 +30,6 @@ public class SecurityConfiguration {
 
   @Autowired
   private ReactiveOAuth2AuthorizedClientService oAuth2AuthorizedClientService;
-
-//  @Autowired
-//  private JwtAuthenticationConverter converter;
-
-  @Autowired
-  private ResourceAuthenticationConverter resourceAuthenticationConverter;
 
   @Bean
   public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -59,56 +46,25 @@ public class SecurityConfiguration {
         .authenticationManager(oauth2LoginAuthenticationManager)
         .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
         .exceptionHandling()
-        .authenticationEntryPoint(new RedirectAuthEntryPoint("/login"))
+        .authenticationEntryPoint(new AuthenticationEntryPoint())
         .accessDeniedHandler(new HttpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST))
         .and()
-//          .authenticationManager(manager)
         .requestCache().disable()
         .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
         .authorizeExchange()
-        .pathMatchers("/hello-get", "/login")
+        .pathMatchers("/login", "/hello-get")
         .permitAll()
         .anyExchange()
         .authenticated()
         .and()
-//        .oauth2Client()
-//          .authenticationConverter(converter)
-//          .authenticationManager(manager)
-//        .and()
         .addFilterAt(new Oauth2RequestRedirectWebFilter(clientRegistrationRepository), SecurityWebFiltersOrder.HTTP_BASIC)
         .addFilterAt(new OAuth2AuthenticationWebFilter(oauth2LoginAuthenticationManager,
             clientRegistrationRepository), SecurityWebFiltersOrder.AUTHENTICATION)
         .oauth2Login()
         .clientRegistrationRepository(clientRegistrationRepository)
-        .authorizedClientRepository(clientRepository())
-//            .authenticationConverter(converter)
-//            .authenticationManager(manager)
-//        .and()
-//          .oauth2ResourceServer()
-//          .bearerTokenConverter(resourceAuthenticationConverter)
-//          .jwt()
-//            .authenticationManager(oauth2LoginAuthenticationManager)
-// .authenticationManager(oauth2LoginAuthenticationManager)
-    ;
+        .authorizedClientRepository(clientRepository());
     return http.build();
   }
-
-//
-//    @Bean
-//    public MapReactiveUserDetailsService userDetailsService() {
-//         UserDetails user = User.withUsername("user")
-//              .username("user")
-//              .password("password")
-//              .roles("USER")
-//              .build();
-//         return new MapReactiveUserDetailsService(user);
-//    }
-
-//  @Bean
-//  public ServerBearerTokenAuthenticationConverter converter() {
-//
-//    return new ServerBearerTokenAuthenticationConverter();
-//  }
 
   private ServerOAuth2AuthorizedClientRepository clientRepository() {
 
@@ -133,29 +89,5 @@ public class SecurityConfiguration {
       }
     };
   }
-
-//  public String createToken(Authentication authentication, boolean rememberMe) {
-//    String authorities = authentication.getAuthorities().stream()
-//        .map(GrantedAuthority::getAuthority)
-//        .collect(Collectors.joining(","));
-//
-//    long now = (new Date()).getTime();
-//    Date validity;
-//    if (rememberMe) {
-//      validity = new Date(now + this.tokenValidityInMillisecondsForRememberMe);
-//    } else {
-//      validity = new Date(now + this.tokenValidityInMilliseconds);
-//    }
-//
-//    return Jwts.builder()
-//        .setSubject(authentication.getName())
-//        .claim(AUTHORITIES_KEY, authorities)
-//        .signWith(key, SignatureAlgorithm.HS512)
-//        .setExpiration(validity)
-//        .compact();
-//  }
-
 }
 
-//
-//}

@@ -11,7 +11,6 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationCodeAuthenticationTokenConverter;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
@@ -28,7 +27,7 @@ public class OAuth2AuthenticationWebFilter extends AuthenticationWebFilter {
     super(authenticationManager);
 
     setRequiresAuthenticationMatcher(createAttemptAuthenticationRequestMatcher());
-    setServerAuthenticationConverter(new AuthCodeTokenConverter(
+    setServerAuthenticationConverter(new AuthorizationCodeTokenConverter(
         clientRegistrationRepository));
     setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 

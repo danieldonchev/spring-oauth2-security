@@ -19,7 +19,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-public class AuthCodeTokenConverter
+public class AuthorizationCodeTokenConverter
 		implements ServerAuthenticationConverter {
 
 	static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
@@ -27,26 +27,14 @@ public class AuthCodeTokenConverter
 	static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
 
 	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-			new AuthRequestRepo();
+			new AuthorizationRequestRepository();
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
-	public AuthCodeTokenConverter(
+	public AuthorizationCodeTokenConverter(
 			ReactiveClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
-	}
-
-	/**
-	 * Sets the {@link ServerAuthorizationRequestRepository} to be used. The default is {@link
-	 * WebSessionOAuth2ServerAuthorizationRequestRepository}.
-	 *
-	 * @param authorizationRequestRepository the repository to use.
-	 */
-	public void setAuthorizationRequestRepository(
-			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
-		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
-		this.authorizationRequestRepository = authorizationRequestRepository;
 	}
 
 	@Override
@@ -67,7 +55,7 @@ public class AuthCodeTokenConverter
 	private Mono<OAuth2AuthorizationCodeAuthenticationToken> authenticationRequest(
 			ServerWebExchange exchange, OAuth2AuthorizationRequest authorizationRequest) {
 		return Mono.just(authorizationRequest)
-				.map(OAuth2AuthorizationRequest::getAdditionalParameters)
+				.map(OAuth2AuthorizationRequest::getAttributes)
 				.flatMap(additionalParams -> {
 					String id = (String) additionalParams.get(OAuth2ParameterNames.REGISTRATION_ID);
 					if (id == null) {

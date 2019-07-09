@@ -9,7 +9,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-public class AuthRequestRepo implements
+public class AuthorizationRequestRepository implements
     ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
   public static final Map<String, OAuth2AuthorizationRequest> requests = new HashMap<>();
@@ -25,7 +25,7 @@ public class AuthRequestRepo implements
       ServerWebExchange exchange) {
 
     requests.put(authorizationRequest.getState(), authorizationRequest);
-    return Mono.empty().then();
+    return Mono.empty();
   }
 
   @Override
