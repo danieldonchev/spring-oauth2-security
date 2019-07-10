@@ -1,5 +1,6 @@
 package app;
 
+import app.oauth2authorization.AuthorizationCodeTokenConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
@@ -11,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
-import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
@@ -45,7 +45,7 @@ public class OAuth2AuthenticationWebFilter extends AuthenticationWebFilter {
       ObjectMapper om = new ObjectMapper();
       String result;
       try {
-        result = om.writeValueAsString(authentication);
+        result = om.writeValueAsString(authentication.getPrincipal());
       } catch (JsonProcessingException e) {
         result = "Something went wrong in authentication";
         webFilterExchange.getExchange().getResponse()

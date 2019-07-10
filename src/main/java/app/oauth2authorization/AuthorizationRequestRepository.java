@@ -1,7 +1,5 @@
-package app;
+package app.oauth2authorization;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
@@ -15,8 +13,6 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthorizationRequestRepository implements
     ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
-
-  public static final Map<String, OAuth2AuthorizationRequest> requests = new HashMap<>();
 
   @Autowired
   private RedisTemplate<String, OAuth2AuthorizationRequest> redisTemplate;
@@ -32,7 +28,6 @@ public class AuthorizationRequestRepository implements
       ServerWebExchange exchange) {
 
     redisTemplate.opsForValue().set(authorizationRequest.getState(), authorizationRequest);
-//    requests.put(authorizationRequest.getState(), authorizationRequest);
     return Mono.empty();
   }
 

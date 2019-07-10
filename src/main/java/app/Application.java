@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.web.reactive.config.EnableWebFlux;
 
 @PropertySource("classpath:application.properties")
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "app")
 @EnableWebFlux
 @EnableReactiveMethodSecurity
 public class Application {

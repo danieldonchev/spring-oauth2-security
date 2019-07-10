@@ -1,4 +1,4 @@
-package app;
+package app.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.CorsRegistry;

@@ -1,5 +1,8 @@
-package app;
+package app.oauth2authorization;
 
+import app.User;
+import app.UserPrincipal;
+import app.jwt.JwtGenerator;
 import java.util.Collection;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +30,14 @@ public class Oauth2LoginAuthenticationManager implements ReactiveAuthenticationM
   private final ReactiveAuthenticationManager authorizationCodeManager;
   private final ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
   private final AuthRepository authRepository;
+  private final JwtGenerator jwtGenerator;
   private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
   @Autowired
-  public Oauth2LoginAuthenticationManager(AuthRepository authRepository) {
+  public Oauth2LoginAuthenticationManager(AuthRepository authRepository, JwtGenerator jwtGenerator) {
 
     this.authRepository = authRepository;
+    this.jwtGenerator = jwtGenerator;
     WebClientReactiveAuthorizationCodeTokenResponseClient client = new WebClientReactiveAuthorizationCodeTokenResponseClient();
     this.authorizationCodeManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(
         client);
@@ -65,17 +70,29 @@ public class Oauth2LoginAuthenticationManager implements ReactiveAuthenticationM
           Collection<? extends GrantedAuthority> mappedAuthorities =
               this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
 
+          UserPrincipal userPrincipal = new UserPrincipal();
+          userPrincipal.setId("test-id");
+          userPrincipal.setEmail("test-email");
+          userPrincipal.setName("name");
+
+          String generatedAccessToken = jwtGenerator.generateToken(userPrincipal);
+          userPrincipal.setAccessToken(generatedAccessToken);
+
           OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
               authentication.getClientRegistration(),
               authentication.getAuthorizationExchange(),
-              oauth2User,
+              userPrincipal,
               mappedAuthorities,
               accessToken,
               authentication.getRefreshToken());
 
           User user = new User("test-id", "test-name", "test-email");
-
-//          authRepository.save(user).block();
+          authRepository.findByEmail("test").subscribe(test -> {
+            System.out.println(test);
+          });
+          authRepository.save(user).subscribe(test -> {
+            System.out.println(test);
+          });
 
           return authenticationResult;
         });

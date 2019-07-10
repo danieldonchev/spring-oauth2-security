@@ -1,22 +1,21 @@
 package app;
 
 import java.util.Collection;
-import java.util.Map;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
-@Table
-public class User implements OAuth2User, UserDetails {
+@Table("user")
+public class User implements UserDetails {
 
   @Id
   private String id;
   private String email;
   private String name;
 
-  public User() { }
+  public User() {
+  }
 
   public User(String id, String email, String name) {
     this.id = id;
@@ -27,16 +26,6 @@ public class User implements OAuth2User, UserDetails {
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return null;
-  }
-
-  @Override
-  public Map<String, Object> getAttributes() {
-    return null;
-  }
-
-  @Override
-  public String getName() {
-    return this.name;
   }
 
   @Override

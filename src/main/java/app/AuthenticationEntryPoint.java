@@ -10,9 +10,6 @@ import reactor.core.publisher.Mono;
 
 public class AuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
 
-  public AuthenticationEntryPoint() {
-  }
-
   @Override
   public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
 
