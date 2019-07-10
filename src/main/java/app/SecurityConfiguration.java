@@ -31,6 +31,12 @@ public class SecurityConfiguration {
   @Autowired
   private ReactiveOAuth2AuthorizedClientService oAuth2AuthorizedClientService;
 
+  @Autowired
+  private Oauth2RequestRedirectWebFilter oauth2RequestRedirectWebFilter;
+
+  @Autowired
+  private OAuth2AuthenticationWebFilter oAuth2AuthenticationWebFilter;
+
   @Bean
   public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 
@@ -57,9 +63,8 @@ public class SecurityConfiguration {
         .anyExchange()
         .authenticated()
         .and()
-        .addFilterAt(new Oauth2RequestRedirectWebFilter(clientRegistrationRepository), SecurityWebFiltersOrder.HTTP_BASIC)
-        .addFilterAt(new OAuth2AuthenticationWebFilter(oauth2LoginAuthenticationManager,
-            clientRegistrationRepository), SecurityWebFiltersOrder.AUTHENTICATION)
+        .addFilterAt(oauth2RequestRedirectWebFilter, SecurityWebFiltersOrder.HTTP_BASIC)
+        .addFilterAt(oAuth2AuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
         .oauth2Login()
         .clientRegistrationRepository(clientRegistrationRepository)
         .authorizedClientRepository(clientRepository());

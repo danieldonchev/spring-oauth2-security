@@ -42,6 +42,7 @@ dependencies {
 //    compile group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: '2.1.6.RELEASE'
     compile group: 'io.r2dbc', name: 'r2dbc-postgresql', version: '1.0.0.M7'
     compile group: 'org.springframework.data', name: 'spring-data-r2dbc', version: '1.0.0.M2'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.1.6.RELEASE'
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('io.projectreactor:reactor-test')
 }

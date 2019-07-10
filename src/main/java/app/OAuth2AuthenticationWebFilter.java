@@ -3,6 +3,7 @@ package app;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -17,18 +18,21 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+@Component
 public class OAuth2AuthenticationWebFilter extends AuthenticationWebFilter {
 
+  @Autowired
   public OAuth2AuthenticationWebFilter(
       ReactiveAuthenticationManager authenticationManager,
-      ReactiveClientRegistrationRepository clientRegistrationRepository) {
+      AuthorizationCodeTokenConverter authorizationCodeTokenConverter) {
+
     super(authenticationManager);
 
     setRequiresAuthenticationMatcher(createAttemptAuthenticationRequestMatcher());
-    setServerAuthenticationConverter(new AuthorizationCodeTokenConverter(
-        clientRegistrationRepository));
+    setServerAuthenticationConverter(authorizationCodeTokenConverter);
     setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 
     setAuthenticationSuccessHandler((webFilterExchange, authentication) -> {
