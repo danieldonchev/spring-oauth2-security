@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+//TODO : Fix principal fields
 public class UserPrincipal implements OAuth2User {
 
   private String id;

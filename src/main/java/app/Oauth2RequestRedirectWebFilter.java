@@ -67,6 +67,8 @@ public class Oauth2RequestRedirectWebFilter implements WebFilter {
 
     exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
     exchange.getResponse().setStatusCode(HttpStatus.OK);
+//    exchange.getResponse().getHeaders().add("Access-Control-Allow-Headers",
+//        "Origin, X-Requested-With, Content-Type, Accept");
 
     byte[] bytes = url.getBytes(StandardCharsets.UTF_8);
     DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);

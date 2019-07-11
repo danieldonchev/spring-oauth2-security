@@ -1,6 +1,6 @@
 package app.oauth2authorization;
 
-import app.User;
+import app.UserTest;
 import app.UserPrincipal;
 import app.jwt.JwtGenerator;
 import java.util.Collection;
@@ -86,10 +86,10 @@ public class Oauth2LoginAuthenticationManager implements ReactiveAuthenticationM
               accessToken,
               authentication.getRefreshToken());
 
-          User user = new User("test-id", "test-name", "test-email");
-          authRepository.findByEmail("test").subscribe(test -> {
-            System.out.println(test);
-          });
+          // TODO : Fix persist/update strategy for new/existing users
+
+          UserTest user = new UserTest("teste", "test-email", "test-name");
+
           authRepository.save(user).subscribe(test -> {
             System.out.println(test);
           });
