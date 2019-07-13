@@ -50,6 +50,10 @@ public class OAuth2AuthenticationWebFilter extends AuthenticationWebFilter {
       byte[] bytes = result.getBytes(StandardCharsets.UTF_8);
       DataBuffer buffer = webFilterExchange.getExchange().getResponse().bufferFactory().wrap(bytes);
 
+      webFilterExchange.getExchange().getResponse().getHeaders().add("Access-Control-Allow-Origin", "*");
+      webFilterExchange.getExchange().getResponse().getHeaders().add("Content-Type", "application/json");
+      webFilterExchange.getExchange().getResponse().getHeaders().add("Access-Control-Allow-Headers", "*");
+      
       return webFilterExchange.getExchange().getResponse().writeWith(Mono.just(buffer));
     });
     setAuthenticationFailureHandler((webFilterExchange, exception) -> Mono.error(exception));

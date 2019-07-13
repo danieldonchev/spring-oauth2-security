@@ -36,7 +36,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile('org.springframework.boot:spring-boot-starter-security')
     compile('org.springframework.security:spring-security-oauth2-client')
-    compile('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure')
+    //compile('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure')
     //    compile group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: '5.1.5.RELEASE'
 //    compile group: 'org.springframework.security', name: 'spring-security-oauth2-jose', version: '5.1.5.RELEASE'
 //    compile group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: '2.1.6.RELEASE'

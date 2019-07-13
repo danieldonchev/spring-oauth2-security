@@ -16,6 +16,10 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import reactor.core.publisher.Mono;
 
 public class Oauth2RequestRedirectWebFilter implements WebFilter {
@@ -52,18 +56,35 @@ public class Oauth2RequestRedirectWebFilter implements WebFilter {
       URI redirectUri = UriComponentsBuilder
           .fromUriString(authorizationRequest.getAuthorizationRequestUri())
           .build(true).toUri();
-      return saveAuthorizationRequest
-          .then(putRedirectUrlInBody(exchange, redirectUri));
+      try {
+		return saveAuthorizationRequest
+		      .then(putRedirectUrlInBody(exchange, redirectUri));
+	} catch (JsonProcessingException e) {
+		// TODO Auto-generated catch block
+		throw new RuntimeException();
+	}
     });
   }
 
-  private Mono<Void> putRedirectUrlInBody(ServerWebExchange exchange, URI redirectUri) {
+  private Mono<Void> putRedirectUrlInBody(ServerWebExchange exchange, URI redirectUri) throws JsonProcessingException {
 
     String url = redirectUri.toString();
 
     exchange.getResponse().setStatusCode(HttpStatus.OK);
-
-    byte[] bytes = url.getBytes(StandardCharsets.UTF_8);
+    
+    exchange.getResponse().getHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.getResponse().getHeaders().add("Content-Type", "application/json");
+    exchange.getResponse().getHeaders().add("Access-Control-Allow-Headers", "*");
+    
+    ObjectMapper objectMapper = new ObjectMapper();
+    
+    FacebookRedirectUrlModel redirectUrl = new FacebookRedirectUrlModel();
+    
+    redirectUrl.setRedirectUrl(url);
+    
+    String newUrl = objectMapper.writeValueAsString(redirectUrl);
+    
+    byte[] bytes = newUrl.getBytes(StandardCharsets.UTF_8);
     DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
 
     return exchange.getResponse().writeWith(Mono.just(buffer));

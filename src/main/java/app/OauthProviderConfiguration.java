@@ -65,6 +65,7 @@ public class OauthProviderConfiguration {
     if (client.equals("facebook")) {
       return CommonOAuth2Provider.FACEBOOK.getBuilder(client)
           .clientId(clientId).clientSecret(clientSecret)
+          .redirectUriTemplate("http://localhost:4200/login")
           .build();
     }
     return null;
